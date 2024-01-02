@@ -26,13 +26,28 @@ def generate(response):     # make CVEReport object
     new_report.name = body.get('vulnerabilities', [])[0].get('cve', {}).get('id', '')
     # get description
     new_report.description = body.get('vulnerabilities', [])[0].get('cve', {}).get('descriptions', [])[0].get('value')
+    # get cvss3 score
+    vulnerability = body.get('vulnerabilities', [])[0]
+    cvss_three_exists = vulnerability.get('cve', {}).get('metrics', {}).get('cvssMetricV30')
+    if cvss_three_exists:
+        new_report.cvss_three = cvss_three_exists[0].get('cvssData', {}).get(
+            'baseScore')
+        new_report.cvss_three_vector = cvss_three_exists[0].get('cvssData', {}).get(
+            'vectorString')
     # get cvss2 vector
-    new_report.cvss_two_vector = body.get('vulnerabilities', [])[0].get('cve', {}).get(
+    cvss_two_exists = vulnerability.get('cve', {}).get('metrics', {}).get('cvssMetricV2')
+    if cvss_two_exists:
+        new_report.cvss_two = cvss_two_exists[0].get('cvssData', {}).get(
+            'baseScore')
+        new_report.cvss_two_vector = cvss_two_exists[0].get('cvssData', {}).get(
+            'vectorString')
+    
+    """ new_report.cvss_two_vector = body.get('vulnerabilities', [])[0].get('cve', {}).get(
         'metrics', {}).get('cvssMetricV2', [])[0].get('cvssData', {}).get('vectorString')
     # get cvss2 base score
     new_report.cvss_two = body.get('vulnerabilities', [])[0].get('cve', {}).get(
     'metrics', {}).get('cvssMetricV2', [])[0].get('cvssData', {}).get('baseScore')
-    # get cwe id
+    # get cwe id """
     new_report.cwe_id = body.get('vulnerabilities', [])[0].get('cve', {}).get(
         'weaknesses', [])[0].get('description', [])[0].get('value', None)
     # get cwe link
