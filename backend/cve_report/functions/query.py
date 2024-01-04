@@ -2,6 +2,21 @@ import requests
 from rest_framework.response import Response
 from ..models import CVEReport, Link, Tag
 
+
+""" automated system:
+use celery to schedule this. 
+go through a block of 2000 CVEs and calculate a relevence score.
+Relevance score criteria:
+* one point for each nvd_link
+* github links count for two points
+* exploit links count for two points
+* keep track in a dictionary, whichever CVE has highest score
+gets displayed the next day
+store the vulnerabilities of the day in the database so you dont repeat 
+
+Feature idea: Let users search CWE-Ids and we return list of CVEs with that ID
+that have had high relevance scores(vuln of day)
+"""
 def query_nvd(cve):
     nvd_link = "https://services.nvd.nist.gov/rest/json/cves/2.0?cveId="
     query_link = nvd_link + cve
@@ -41,13 +56,7 @@ def generate(response):     # make CVEReport object
             'baseScore')
         new_report.cvss_two_vector = cvss_two_exists[0].get('cvssData', {}).get(
             'vectorString')
-    
-    """ new_report.cvss_two_vector = body.get('vulnerabilities', [])[0].get('cve', {}).get(
-        'metrics', {}).get('cvssMetricV2', [])[0].get('cvssData', {}).get('vectorString')
-    # get cvss2 base score
-    new_report.cvss_two = body.get('vulnerabilities', [])[0].get('cve', {}).get(
-    'metrics', {}).get('cvssMetricV2', [])[0].get('cvssData', {}).get('baseScore')
-    # get cwe id """
+        
     new_report.cwe_id = body.get('vulnerabilities', [])[0].get('cve', {}).get(
         'weaknesses', [])[0].get('description', [])[0].get('value', None)
     # get cwe link
