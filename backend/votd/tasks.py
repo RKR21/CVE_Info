@@ -1,7 +1,14 @@
 from celery import shared_task
-
+from cve_report import models
+from .functions import generate_votd
 @shared_task(bind=True)
 def test_func(self):
+    report = models.CVEReport()
+    report.name = "CVE-"
+    report.save()
     for i in range(10):
         print(i)
-    return "Done"
+        
+@shared_task(bind=True)
+def find_votd(self):
+    print(generate_votd.votd_search())
