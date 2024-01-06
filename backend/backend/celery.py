@@ -19,7 +19,7 @@ app.config_from_object(settings, namespace='CELERY')
 app.conf.beat_schedule = {
     'find-votd': {
         'task': 'votd.tasks.find_votd',
-        'schedule': crontab(hour=15, minute=1),
+        'schedule': crontab(hour=19, minute=36),
     }
 }
 app.autodiscover_tasks()

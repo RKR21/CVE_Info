@@ -12,6 +12,13 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='Link',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('url', models.URLField()),
+            ],
+        ),
+        migrations.CreateModel(
             name='Tag',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
@@ -19,15 +26,7 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='Link',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('url', models.URLField()),
-                ('tags', models.ManyToManyField(to='cve_report.tag')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='CVEReport',
+            name='VulnerabilityOfTheDay',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=20)),
@@ -39,7 +38,14 @@ class Migration(migrations.Migration):
                 ('cwe_id', models.CharField(max_length=10)),
                 ('cwe_name', models.CharField(max_length=200)),
                 ('cwe_link', models.URLField()),
-                ('nvd_links', models.ManyToManyField(related_name='nvd_links', to='cve_report.link')),
+                ('date_posted', models.DateField()),
+                ('relevance_score', models.IntegerField()),
+                ('nvd_links', models.ManyToManyField(related_name='nvd_links', to='votd.link')),
             ],
+        ),
+        migrations.AddField(
+            model_name='link',
+            name='tags',
+            field=models.ManyToManyField(to='votd.tag'),
         ),
     ]
