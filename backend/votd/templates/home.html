@@ -1,0 +1,70 @@
+{% include 'navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <title>Vulnerability of the Day</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-10 offset-md-1 border rounded p-4 mt-2 shadow">
+          <h2 class="text-center m-4">Vulnerability of the Day</h2>
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Vulnerability Details</h5>
+              <!-- Include your dynamic VotD data here -->
+              <p class="card-text">
+                <a href="{{ current_votd.nvd_link }}"
+                  >CVE ID: {{current_votd.name}}</a
+                >
+              </p>
+              <p class="card-text">
+                <strong>Published Date:</strong> {{current_votd.date_published}}
+              </p>
+              <p class="card-text">
+                <strong>Description:</strong> {{current_votd.description}}.
+              </p>
+              <p class="card-text">
+                <strong>CWE ID:</strong>
+                <a href="{{current_votd.cwe_link}}">{{current_votd.cwe_id}}</a>
+              </p>
+
+              {% if current_votd.cvss_two %}
+              <p class="card-text">
+                <strong>CVSSV2: </strong>
+                Score: {{current_votd.cvss_two}} | Vector:
+                {{current_votd.cvss_two_vector}}
+              </p>
+              {% endif %} {% if current_votd.cvss_three %}
+              <p class="card-text">
+                <strong>CVSSV3: </strong>
+                Score: {{current_votd.cvss_three}} | Vector:
+                {{current_votd.cvss_three_vector}}
+              </p>
+              {% endif %}
+              <ul>
+                {% for link in current_votd.nvd_links.all %}
+                    <li>
+                        <a href="{{ link.url }}">{{ link.url }}</a> | 
+                        {% for tag in link.tags.all %}
+                            {{ tag.name }}{% if not forloop.last %},{% endif %}
+                        {% endfor %}
+                    </li>
+                {% endfor %}
+                </ul>
+
+              <!-- Add more fields as needed -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

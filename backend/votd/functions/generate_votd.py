@@ -7,7 +7,7 @@ from datetime import date, timedelta
 
 def votd_search():
     scores = {}
-    starting_index = random.randrange(0, 232000)
+    starting_index = random.randrange(0, 212000)
     base_url = "https://services.nvd.nist.gov/rest/json/cves/2.0/?resultsPerPage=2000&startIndex="
     query_url = base_url + str(starting_index)
     data = requests.get(query_url)
@@ -31,16 +31,23 @@ def votd_search():
 
 def compute_relevance(vuln):
     score = 0
+    # check if there is a github or exploit link
     link_list = vuln.get('cve', {}).get('references', [])
+    exploit = None
+    git = None
     for i in range(len(link_list)):
         score += 1
+        if 'git' in link_list[i]['url']:
+            git = True
         if 'tags' in link_list[i]:
             tags = link_list[i]['tags']
             if 'Exploit' in tags:
+                exploit = True
                 score += 1
             if 'Patch' in tags:
                 score += 1
-    
+    if not (git or exploit):
+        score = 0
     return score
         
         
@@ -61,8 +68,13 @@ def create_votd_object(id, score):
     new_report.relevance_score = score
     new_report.date_posted = date.today() + timedelta(days=1)
     body = response.json()
-    # get name
+    print(body)
+    # get date published
+    timestamp = body.get('vulnerabilities', [])[0].get('cve', {}).get('published').split("T")
+    new_report.date_published = timestamp[0]
+    # get name and nvd_link
     new_report.name = body.get('vulnerabilities', [])[0].get('cve', {}).get('id', '')
+    new_report.nvd_link = "https://nvd.nist.gov/vuln/detail/" + new_report.name
     # get description
     new_report.description = body.get('vulnerabilities', [])[0].get('cve', {}).get('descriptions', [])[0].get('value')
     # get cvss3 score
