@@ -1,0 +1,21 @@
+{% include 'navbar.html' %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 offset-md-1 border rounded p-4 mt-2 shadow">
+            <h1>Stats</h1>
+            <h5>Type the name of a product</h5>
+            <form class="d-flex" method="get" action="{% url 'get_stats' %}">
+                <input
+                  class="form-control me-sm-2"
+                  type="search"
+                  placeholder="e.g. Linux or MySQL Server"
+                  name="query"
+                />
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit">
+                  Search
+                </button>
+              </form>
+        </div>
+    </div>
+</div>
