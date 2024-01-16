@@ -1,5 +1,10 @@
 from django.shortcuts import render
 import requests
+from .functions.calculate import parse_data
+from .tasks import compute_stats
+import requests
+from celery.result import AsyncResult
+
 
 # Create your views here.
 
@@ -20,16 +25,23 @@ def get_stats(request):
     query = request.GET.get('query', '')
     baseUrl = "https://services.nvd.nist.gov/rest/json/cves/2.0?keywordSearch="
     exact_match_string = "&keywordExactMatch"
-    query_link = baseUrl + exact_match_string
+    query_link = baseUrl + query + exact_match_string
     response = requests.get(query_link)
     if response.status_code == 200:
         # Get the JSON object from the response
-        response_json = response.json()
-        #print(response_json)
-        return response
+        body = response.json()
+        data_context = {}
+        task_result = compute_stats.delay(body, query, data_context)
+        data_context = task_result.get()
+        
     
     else:
         error_message = "Error: Failed to retrieve data from NVD API. Status code: {response.status_code}"
         print(error_message)
-    
-    return render(request, 'search_results.html', {'query' : query})
+    #print(data_context)
+    # if no results found, display blank page
+    if body.get("totalResults") == 0:
+        return render(request, 'no_results.html', {"query" : query})
+    return render(request, 'search_results.html', {'stats' : data_context})
+# find most interesting vulnerabilities and display them
+# display top 5 most common CWEs

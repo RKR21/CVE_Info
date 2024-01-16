@@ -1,2 +1,158 @@
-<h1>HERE ARE THE STATS</h1>
-<h1>{{ query }}</h1>
+{% include 'navbar.html' %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <title>Search Results</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12 offset-md-0 border rounded p-4 mt-2 shadow">
+          <h2 class="text-center m-4">{{ stats.query }} Stats:</h2>
+          <div class="card">
+            <div class="card-body">
+              <div class="general-stats">
+                <h4>General Info:</h4>
+                <p class="card-text">
+                  <strong>{{ stats.total_results }}</strong> CVEs Found
+                </p>
+                <img
+                  class="d-block mx-auto" src="data:image/png;base64,{{ stats.cve_per_year_graph }}"
+                  alt="# cves per year"
+                />
+              </div>
+            </div>
+            <div class="card">
+              <div class="accordian">
+                <div class="accordion" id="accordionExample">
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingOne">
+                      <button
+                        class="accordion-button"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseOne"
+                        aria-expanded="true"
+                        aria-controls="collapseOne"
+                      >
+                        CVSS2 Stats
+                      </button>
+                    </h2>
+                    <div
+                      id="collapseOne"
+                      class="accordion-collapse collapse show"
+                      aria-labelledby="headingOne"
+                      data-bs-parent="#accordionExample"
+                    >
+                      <div class="accordion-body">
+                        <p><strong>{{ stats.V2_occurrences }}</strong> CWEs with a CVSS2 score</p>
+                        <p>The average base score is <strong>{{ stats.avg_V2_base_score}}</strong></p>
+                        <img class="d-block mx-auto" 
+                        src="data:image/png;base64,{{ stats.avg_V2_base_score_graph }}" alt="">
+                        <h5>Vector Stats:</h5>
+                        <div class="row">
+                            {% for img in stats.V2_graphs %}
+                                <div class="col-md-6">
+                                    <img width="500" class="d-block mx-auto" 
+                                    src="data:image/png;base64,{{ img }}" alt="">
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwo">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseTwo"
+                        aria-expanded="false"
+                        aria-controls="collapseTwo"
+                      >
+                        CVSS3 Stats
+                      </button>
+                    </h2>
+                    <div
+                      id="collapseTwo"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="headingTwo"
+                      data-bs-parent="#accordionExample"
+                    >
+                      <div class="accordion-body">
+                        <div class="accordion-body">
+                            <p><strong>{{ stats.V3_occurrences }}</strong> CWEs with a CVSS3 score</p>
+                            <p>The average base score is <strong>{{ stats.avg_V3_base_score }}</strong></p>
+                            <img class="d-block mx-auto" 
+                            src="data:image/png;base64,{{ stats.avg_V3_base_score_graph }}" alt="">
+                            <h5>Vector Stats:</h5>
+                            <div class="row">
+                                {% for img in stats.V3_graphs %}
+                                    <div class="col-md-6">
+                                        <img width="500" class="d-block mx-auto" 
+                                        src="data:image/png;base64,{{ img }}" alt="">
+                                    </div>
+                                {% endfor %}
+                            </div>
+    
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingThree">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseThree"
+                        aria-expanded="false"
+                        aria-controls="collapseThree"
+                      >
+                        CVSS3.1 Stats
+                      </button>
+                    </h2>
+                    <div
+                      id="collapseThree"
+                      class="accordion-collapse collapse"
+                      aria-labelledby="headingThree"
+                      data-bs-parent="#accordionExample"
+                    >
+                      <div class="accordion-body">
+                        <div class="accordion-body">
+                            <p><strong>{{ stats.V3_1_occurrences }}</strong> CWEs with a CVSS3.1 score</p>
+                            <p>The average base score is <strong>{{ stats.avg_V3_1_base_score }}</strong></p>
+                            <img class="d-block mx-auto" 
+                            src="data:image/png;base64,{{ stats.avg_V3_1_base_score_graph }}" alt="">
+                            <h5>Vector Stats:</h5>
+                            <div class="row">
+                                {% for img in stats.V3_1_graphs %}
+                                    <div class="col-md-6">
+                                        <img width="500" class="d-block mx-auto" 
+                                        src="data:image/png;base64,{{ img }}" alt="">
+                                    </div>
+                                {% endfor %}
+                            </div>
+    
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
