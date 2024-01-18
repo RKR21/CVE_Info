@@ -14,18 +14,13 @@ def home_votd(request):
     current_votd = VulnerabilityOfTheDay.objects.first()
     print(current_votd)
     if(current_votd == None or current_votd.date_posted != timezone.now().date()):
-        print("OYYOYO")
-        #task_result = find_votd.delay()
-        new_votd = votd_search()
-        
-        #task_result.save()
+        new_votd = votd_search()     
         new_votd.save()
         print(new_votd)
         
         return render(request, 'home.html', {'current_votd':new_votd})
-    #print(current_votd)
+
     print(timezone.now().date())
     if(current_votd.date_posted == timezone.now().date()):
-        print("YOOYOYOO")
         return render(request, 'home.html', {'current_votd':current_votd})
     

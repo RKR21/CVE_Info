@@ -35,22 +35,14 @@ def get_stats(request):
         task_result = compute_stats.delay(body, query, data_context)
         task_result.wait()
         data_context = task_result.get()
-        """ while not task_result.ready():
-            pass
-
-        data_context = task_result.result """
         if body.get("totalResults") == 0:
             return render(request, 'no_results.html', {"query" : query})
-        #print(f"Gotten info: {data_context.query}")
         return render(request, 'search_results.html', {'stats' : data_context})
     
     else:
         error_message = "Error: Failed to retrieve data from NVD API. Status code: {response.status_code}"
         print(error_message)
         
-    #print(data_context)
-    # if no results found, display blank page
-    #return render(request, 'test.html', {'stats' : data_context})
-    
+# Next:
 # find most interesting vulnerabilities and display them
 # display top 5 most common CWEs
