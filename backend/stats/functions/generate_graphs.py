@@ -2,16 +2,7 @@ import base64
 import matplotlib.pyplot as plt
 from io import BytesIO
 
-""" cvss_two_dict = {
-        'AV' : {'L' : 0, 'A' : 0, 'N' : 0},
-        'AC' : {'H' : 0, 'M' : 0, 'L' : 0},
-        'Au' : {'M' : 0, 'S' : 0, 'N' : 0},
-        'C' : {'N' : 0, 'P' : 0, 'C' : 0},
-        'I' : {'N' : 0, 'P' : 0, 'C' : 0},
-        'A' : {'N' : 0, 'P' : 0, 'C' : 0},
- """
-
-# GRAPHS IN ACCORDIAN
+# generates pie charts for each metric in the vector
 def generate_cvss_graphs(dict, occurrences):
     images = []
     for key in dict:
@@ -22,7 +13,6 @@ def generate_cvss_graphs(dict, occurrences):
             sizes.append(dict[key][j])
             rounded = round((dict[key][j] / occurrences) * 100, 1)
             percents.append(rounded)
-        #print(percents)
         plt.pie(percents, labels=None, autopct='', startangle=90, pctdistance=.2)
         legend_labels = [f'{category}: {value}%' for category, value in zip(labels, percents)]
         plt.legend(legend_labels, title='Percentages', loc='upper left', bbox_to_anchor=(0, 1))
@@ -36,6 +26,7 @@ def generate_cvss_graphs(dict, occurrences):
     plt.clf()
     return images
 
+# generates graph showing number of cves per year
 def generate_num_cves_per_year_graph(dict):
     categories = list(dict.keys())
     values = list(dict.values())
@@ -49,7 +40,7 @@ def generate_num_cves_per_year_graph(dict):
     ax.set_title("Number of CVEs Per Year")
 
     # Rotate x-axis labels
-    plt.xticks(rotation=45, ha='right')  # Adjust the rotation angle and alignment as needed
+    plt.xticks(rotation=45, ha='right')
 
     fig.tight_layout()
     
@@ -62,6 +53,7 @@ def generate_num_cves_per_year_graph(dict):
     plt.clf()
     return b64_image
 
+# generates graph showing average yearly base score
 def generate_avg_yearly_base_score_graph(dict):
     x = list(dict.keys())
     y = []
@@ -72,6 +64,7 @@ def generate_avg_yearly_base_score_graph(dict):
     plt.xlabel('Year')
     plt.ylabel('AVG Base Score')
     plt.title('Average Yearly CVE Severity')
+    
 
     img = BytesIO()
     plt.savefig(img, format='png')

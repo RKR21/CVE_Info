@@ -2,38 +2,35 @@ version: "3.8"
 
 services:
   django:
-    build: .
-    container_name: django
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/usr/src/app/
+    build:
+      context: .
+      dockerfile: Dockerfile.django
     ports:
       - "8000:8000"
-    environment:
-      - DEBUG=1
-      - DJANGO_ALLOWED_HOSTS=localhost 127.0.0.1
-      - CELERY_BROKER=redis://redis:6379/0/
     depends_on:
-      - pgdb
       - redis
-  celery:
-    build: .
-    command: celery worker --app=core --loglevel=info
+      - celery_worker
+      - celery_beat
     volumes:
-      - .:/usr/src/app/
+      - ./data/db:/app/db
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery_worker
     depends_on:
-      - django
       - redis
-  pgdb:
-    image: postgres
-    container_name: pgdb
-    environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
     volumes:
-      - pgdata:/var/lib/postgresql/data/
+      - ./data/db:/app/db
+
+  celery_beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery_beat
+    depends_on:
+      - celery_worker
+    volumes:
+      - ./data/db:/app/db
+
   redis:
-    image: "redis:alpine"
-volumes:
-  pgdata:
+    image: "redis:latest"

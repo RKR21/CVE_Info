@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-!+jhk9yzy&1p(ba05^knb3x&475$7*nvu6cfm9)7)4yr!on4(w
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+TIME_ZONE = 'America/New_York'
+USE_TZ = False
 
 # Application definition
 
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'stats',
     'django_celery_results',
     'bootstrap5',
+    'celery'
 ]
 
 MIDDLEWARE = [
@@ -131,7 +133,8 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CELERY SETTINGS
-
+#CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+#CELERY_RESULT_BACKEND = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
 CELERY_broker_url = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
 CELERY_result_backend = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
 #CELERY_broker_url = 'redis://127.0.0.1:6379'

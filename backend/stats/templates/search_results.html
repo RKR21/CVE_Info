@@ -1,4 +1,4 @@
-{% include 'navbar.html' %}
+{% include 'Navbar.html' %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +53,7 @@
                     >
                       <div class="accordion-body">
                         <p><strong>{{ stats.V2_occurrences }}</strong> CWEs with a CVSS2 score</p>
-                        <p>The average base score is <strong>{{ stats.avg_V2_base_score}}</strong></p>
+                        <p>The average base score is <strong>{{ stats.avg_V2_base_score }}</strong></p>
                         <img class="d-block mx-auto" 
                         src="data:image/png;base64,{{ stats.avg_V2_base_score_graph }}" alt="">
                         <h5>Vector Stats:</h5>

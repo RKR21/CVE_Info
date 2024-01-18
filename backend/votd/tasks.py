@@ -11,4 +11,6 @@ def test_func(self):
         
 @shared_task(bind=True)
 def find_votd(self):
-    print(generate_votd.votd_search())
+    report = generate_votd.votd_search()
+    print(report)
+    return report

@@ -17,11 +17,13 @@ class VulnerabilityOfTheDay(models.Model):
     description = models.TextField()
     cvss_two_vector = models.CharField(max_length = 50)
     cvss_three_vector = models.CharField(max_length = 50)
+    cvss_three_one_vector = models.CharField(null = True, max_length = 50)
     nvd_links = models.ManyToManyField(Link, related_name='nvd_links')
     
 
     cvss_two = models.FloatField(null = True, blank = True)
     cvss_three = models.FloatField(null = True, blank = True)
+    cvss_three_one = models.FloatField(null = True, blank = True)
 
     date_published = models.DateField(default=timezone.now())
     nvd_link = models.URLField(default="#")

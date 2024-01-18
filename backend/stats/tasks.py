@@ -4,4 +4,5 @@ from .functions import calculate
 def compute_stats(self, body, query, data_context):
     total_results = body.get('totalResults')
     data_context = calculate.parse_data(query, total_results, data_context)
+    print("Success Returning now")
     return data_context

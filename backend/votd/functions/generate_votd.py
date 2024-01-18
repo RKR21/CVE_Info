@@ -12,10 +12,10 @@ def votd_search():
     query_url = base_url + str(starting_index)
     data = requests.get(query_url)
     body = data.json()
-    #print(body.get('resultsPerPage'))
+    
     total_results = body.get('resultsPerPage')
     # calculate score for all CVEs
-    #print(total_results)
+    
     for i in range(total_results):
         # get vulnerability[i]
         vuln = body.get('vulnerabilities', [])[i]
@@ -66,7 +66,7 @@ def create_votd_object(id, score):
     new_report = VulnerabilityOfTheDay()
     # add relevance score and date posted(next day)
     new_report.relevance_score = score
-    new_report.date_posted = date.today() + timedelta(days=1)
+    new_report.date_posted = date.today()
     body = response.json()
     print(body)
     # get date published
@@ -77,15 +77,22 @@ def create_votd_object(id, score):
     new_report.nvd_link = "https://nvd.nist.gov/vuln/detail/" + new_report.name
     # get description
     new_report.description = body.get('vulnerabilities', [])[0].get('cve', {}).get('descriptions', [])[0].get('value')
-    # get cvss3 score
+    # get cvss3_1 score and vector
     vulnerability = body.get('vulnerabilities', [])[0]
+    cvss_three_one_exists = vulnerability.get('cve', {}).get('metrics', {}).get('cvssMetricV31')
+    if cvss_three_one_exists:
+        new_report.cvss_three_one = cvss_three_one_exists[0].get('cvssData', {}).get(
+            'baseScore')
+        new_report.cvss_three_one_vector = cvss_three_one_exists[0].get('cvssData', {}).get(
+            'vectorString')
+    # get cvss3_1 score and vector
     cvss_three_exists = vulnerability.get('cve', {}).get('metrics', {}).get('cvssMetricV30')
     if cvss_three_exists:
         new_report.cvss_three = cvss_three_exists[0].get('cvssData', {}).get(
             'baseScore')
         new_report.cvss_three_vector = cvss_three_exists[0].get('cvssData', {}).get(
             'vectorString')
-    # get cvss2 vector
+    # get cvss2 score vector
     cvss_two_exists = vulnerability.get('cve', {}).get('metrics', {}).get('cvssMetricV2')
     if cvss_two_exists:
         new_report.cvss_two = cvss_two_exists[0].get('cvssData', {}).get(
@@ -116,3 +123,4 @@ def create_votd_object(id, score):
     
     
     new_report.save()
+    return new_report

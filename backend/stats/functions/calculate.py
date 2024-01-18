@@ -71,96 +71,65 @@ def parse_data(query, total_results, data_context):
         start_index_string = "&startIndex=" + str(start_index)
         query_link = baseUrl + query + exact_match_string + start_index_string
         response = requests.get(query_link)
-        #print(query_link)
+
         body = response.json()
-        """ print(body.get('totalResults'))
-        print(body.get('resultsPerPage'))
-        print(body.get('vulnerabilities', [])[0].get('cve', {}).get('id')) """
         start_index += 2000
         for j in range(body.get('resultsPerPage')):
             vuln = body.get('vulnerabilities', [])[j]
+
+            # populate avg base score dictionaries if cvss version exists
             if(cvss_two_exists(vuln)):
                 V2_occurrences += 1
                 avg_V2_base_score += get_cvss_two_metrics(vuln, cvss_two_dict, yearly_avg_base_score_two)
-                #avg_V2_base_score = avg_V2_base_score / V2_occurrences
                 
             if(cvss_three_exists(vuln)):
                 V3_occurrences += 1
                 avg_V3_base_score += get_cvss_three_metrics(vuln, cvss_three_dict, yearly_avg_base_score_three)
-                #avg_V3_base_score = avg_V3_base_score / V3_occurrences
+                
             if(cvss_three_one_exists(vuln)):
                 V3_1_occurrences += 1
                 avg_V3_1_base_score += get_cvss_three_metrics(vuln, cvss_three_one_dict, yearly_avg_base_score_three_one)
-                #avg_V3_1_base_score = avg_V3_1_base_score / V3_1_occurrences
+                
             # get year of cve
             year = vuln.get('cve', {}).get('published').split('-')[0]
+            # increment cve counter for year or add new year to dictionary
             if year in num_cves_per_year:
                 num_cves_per_year[year] += 1
             else:
                 num_cves_per_year[year] = 1
+
     # compute average base scores
-    
     if V2_occurrences != 0: avg_V2_base_score = round(avg_V2_base_score / V2_occurrences, 1)
     if V3_occurrences != 0: avg_V3_base_score = round(avg_V3_base_score / V3_occurrences, 1)
     if V3_1_occurrences != 0: avg_V3_1_base_score = round(avg_V3_1_base_score / V3_1_occurrences, 1)
-    """ print(num_cves_per_year)
-    print(yearly_avg_base_score_two)
-    print(yearly_avg_base_score_three)
-    print(yearly_avg_base_score_three_one)
-
-    # get yearly averages
-    average_dict_arrays(yearly_avg_base_score_two)
-    average_dict_arrays(yearly_avg_base_score_three)
-    average_dict_arrays(yearly_avg_base_score_three_one)
-
-    print(f"avg yearly V2: {yearly_avg_base_score_two}")
-    print(f"avg yearly V3: {yearly_avg_base_score_three}")
-    print(f"avg yearly V31: {yearly_avg_base_score_three_one}")
-    #print(f"{avg_V2_base_score} and {V2_occurrences}")
     
-    print(f"AVG: {avg_V2_base_score}")
+    # generate vector graphs 
+    cvss_two_graphs = {}
+    cvss_three_graphs = {}
+    cvss_three_one_graphs = {}
+    if V2_occurrences > 0: cvss_two_graphs = generate_cvss_graphs(cvss_two_dict, V2_occurrences)
+    if V3_occurrences > 0: cvss_three_graphs = generate_cvss_graphs(cvss_three_dict, V3_occurrences)
+    if V3_1_occurrences > 0: cvss_three_one_graphs = generate_cvss_graphs(cvss_three_one_dict, V3_1_occurrences)
     
-    print(f"AVG: {avg_V3_base_score}")
-    print(f"AVG: {avg_V3_1_base_score}")
-    print(f"dict2: {cvss_two_dict}")
-    print(f"dict3: {cvss_three_dict}")
-    print(f"dict31: {cvss_three_one_dict}") """
-
-    """ # save into search term stats model
-    term = QueryStats()
-    term.query_name = query
-    term.avg_cvss_two = avg_V2_base_score
-    term.avg_cvss_three = avg_V3_base_score
-    term.avg_cvss_three_one = avg_V3_1_base_score
-
-    term.cvss_two_vector_tallies = cvss_two_dict
-    term.cvss_two_vector_tallies = cvss_three_dict
-    term.cvss_two_vector_tallies = cvss_three_one_dict
-
-    term.num_cves_per_year = num_cves_per_year
-    term.avg_yearly_base_score_V2 = yearly_avg_base_score_two
-    term.avg_yearly_base_score_V3 = yearly_avg_base_score_three
-    term.avg_yearly_base_score_V3_1 = yearly_avg_base_score_three_one
-    term.save() """
-
-    # make graphs
-    # cvss_2 pie charts of vector metrics
-    # cvss_3 pie charts of vector metrics
-    # cvss_3.1 pie charts of vector metrics
-
-    cvss_two_graphs = generate_cvss_graphs(cvss_two_dict, V2_occurrences)
-    cvss_three_graphs = generate_cvss_graphs(cvss_three_dict, V3_occurrences)
-    cvss_three_one_graphs = generate_cvss_graphs(cvss_three_one_dict, V3_1_occurrences)
-
+    # number of cves per year graph
     cve_per_year_graph = generate_num_cves_per_year_graph(num_cves_per_year)
+
     # average the yearly base scores and graph them
-    average_dict_arrays(yearly_avg_base_score_two)
-    average_dict_arrays(yearly_avg_base_score_three)
-    average_dict_arrays(yearly_avg_base_score_three_one)
-    avg_V2_base_score_graph = generate_avg_yearly_base_score_graph(yearly_avg_base_score_two)
-    avg_V3_base_score_graph = generate_avg_yearly_base_score_graph(yearly_avg_base_score_three)
-    avg_V3_1_base_score_graph = generate_avg_yearly_base_score_graph(yearly_avg_base_score_three_one)
-    #print(query)
+    avg_V2_base_score_graph = {}
+    avg_V3_base_score_graph = {}
+    avg_V3_1_base_score_graph = {}
+    if V2_occurrences > 0:
+        average_dict_arrays(yearly_avg_base_score_two)
+        avg_V2_base_score_graph = generate_avg_yearly_base_score_graph(yearly_avg_base_score_two)
+    if V3_occurrences > 0:
+        average_dict_arrays(yearly_avg_base_score_three)
+        avg_V3_base_score_graph = generate_avg_yearly_base_score_graph(yearly_avg_base_score_three)
+    if V3_1_occurrences > 0:
+        average_dict_arrays(yearly_avg_base_score_three_one)
+        avg_V3_1_base_score_graph = generate_avg_yearly_base_score_graph(yearly_avg_base_score_three_one)
+    
+
+    # combine 
     data_context = {
         "query" : query,
         "total_results" : total_results,
@@ -178,10 +147,9 @@ def parse_data(query, total_results, data_context):
         "avg_V3_base_score_graph" : avg_V3_base_score_graph,
         "avg_V3_1_base_score_graph" : avg_V3_1_base_score_graph,
     }
-    #print(data_context)
+
     return data_context
-            #print(j)
-    #print(cvss_two_dict)
+
     
 
 # calls aggregate function to count vector metrics and base score for cvss 2
@@ -190,10 +158,10 @@ def parse_data(query, total_results, data_context):
 def get_cvss_two_metrics(vuln, cvss_two_dict, yearly_avg_base_score):
     base_score = 0
     cvss_two = vuln.get('cve', {}).get('metrics', {}).get('cvssMetricV2')
-    #print(cvss_two)
-        #print(cvss_two[0].get('cvssData', {}).get('baseScore'))
+
     base_score = cvss_two[0].get('cvssData', {}).get('baseScore')
     year = int(vuln.get('cve', {}).get('published').split('-')[0])
+
     # populate average yearly base score dictionary
     if year not in yearly_avg_base_score:
         yearly_avg_base_score[year] = [1, base_score]
@@ -201,12 +169,13 @@ def get_cvss_two_metrics(vuln, cvss_two_dict, yearly_avg_base_score):
         yearly_avg_base_score[year][0] += 1
         yearly_avg_base_score[year][1] += base_score
 
-    #print(base_score)
+    
     vector = cvss_two[0].get('cvssData', {}).get('vectorString').split('/')
     aggregate_cvss_dict(cvss_two_dict, vector)
         
-        #print(vector)
+        
     return base_score
+
 # calls aggregate function to count vector metrics and base scores for cvss 3
 # also populates yearly base score dictionary
 # returns base score to be added in parse_data function
@@ -236,35 +205,37 @@ def aggregate_cvss_dict(dict, vector):
         metric = vector[vector_counter].split(':')
         dict[key][metric[1]] += 1
         vector_counter += 1
-    #print(dict)
-    """ if 'cvssMetricV2' not in metrics:
-        print("don't exist V2")
-        return False """
 
+# checks whether V2 exists in dictionary
 def cvss_two_exists(vuln):
     cvss_two = vuln.get('cve', {}).get('metrics', {}).get('cvssMetricV2')
-    #print(cvss_two)
+    
     if not cvss_two:
-        #print("V2 doesnt exist")
+        
         return False
     else:
         return True
+
+# checks whether V3 exists in dictionary
 def cvss_three_exists(vuln):
     cvss_three = vuln.get('cve', {}).get('metrics', {}).get('cvssMetricV30')
-    #print(cvss_two)
+    
     if not cvss_three:
-        #print("V2 doesnt exist")
+        
         return False
     else:
         return True
+    
+# checks whether V3_1 exists in dictionary
 def cvss_three_one_exists(vuln):
     cvss_three = vuln.get('cve', {}).get('metrics', {}).get('cvssMetricV31')
-    #print(cvss_two)
+    
     if not cvss_three:
-        #print("V2 doesnt exist")
+        
         return False
     else:
         return True
+    
 # averages arrays in dict
 def average_dict_arrays(dict):
     for key in dict:
